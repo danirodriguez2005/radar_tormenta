@@ -7,7 +7,6 @@ import json
 
 RADAR_URL = "https://www2.contingencias.mendoza.gov.ar/radar/sur.gif"  
 
-# --- Firebase init ---
 cred_json = json.loads(os.environ["FIREBASE_SERVICE_ACCOUNT"])
 cred = credentials.Certificate(cred_json)
 
@@ -15,27 +14,20 @@ firebase_admin.initialize_app(cred)
 
 db = firestore.client()
 
-# --- Fetch radar ---
+# --- fetch radar ---
 response = requests.get(RADAR_URL)
 
-timestamp = datetime.utcnow().isoformat()
+timestamp = datetime.utcnow()
 
-if response.status_code == 200:
-    doc = {
-        "timestamp": timestamp,
-        "imageUrl": RADAR_URL,
-        "status": "ok"
-    }
+doc = {
+    "timestamp": timestamp,
+    "imageUrl": RADAR_URL,
+    "status": "ok" if response.status_code == 200 else "error",
+    "httpStatus": response.status_code,
+    "source": "radar_job"
+}
 
-    db.collection("radar_frames").add(doc)
-    print("Metadata guardada ✔️", timestamp)
-else:
-    doc = {
-        "timestamp": timestamp,
-        "imageUrl": RADAR_URL,
-        "status": "error",
-        "httpStatus": response.status_code
-    }
+db.collection("radar_frames").add(doc)
 
-    db.collection("radar_frames").add(doc)
-    print("Error guardado ✔️", response.status_code)
+print("Frame guardado ✔️", timestamp)
+
