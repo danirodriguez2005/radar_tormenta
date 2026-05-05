@@ -1,0 +1,14 @@
+name: Radar Job
+
+on:
+  schedule:
+    - cron: "*/5 * * * *"  # cada 5 minutos
+  workflow_dispatch:       # permite ejecutarlo manualmente
+
+jobs:
+  run-test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Mensaje de prueba
+        run: echo "El workflow está funcionando"
